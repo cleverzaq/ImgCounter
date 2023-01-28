@@ -17,16 +17,18 @@
 		var img = document.createElement("img");
 
 		const load = (param) => new Promise((resolve, reject) => {
+			var src = document.getElementById("main");
 			img = new Image();
 			img.addEventListener('load', () => resolve(img));
 			img.addEventListener('error', () => {
 				src.removeChild(a); 
-				if (img.naturalWidth == 0)
-					if (document.getElementsByTagName("img").length == 0)
+				if (img.naturalWidth == 0) {
+					if (document.getElementsByTagName("img").length == 0) {
 						alert("Can't find image at:\n" + param[p.url]);
+					}
+				}
 			});
 			img.src = param[p.url];
-			var	src = document.getElementById("main");
 			var a = document.createElement("a"); //or div
 			a.setAttribute("href", param[p.url]);
 			a.setAttribute("data-fancybox", param[p.pos]);
@@ -37,8 +39,9 @@
 		await load(param);
 
 		++param[p.pos];
-		if (param[p.chr] != -1)
+		if (param[p.chr] != -1) {
 			param[p.url] = [param[p.url].slice(0, param[p.chr]), "$", param[p.url].slice(param[p.chr])].join('');
+		}
 
 		return [param[p.url], param[p.chr], param[p.pos], img.naturalWidth, img.naturalHeight];
 	}
@@ -64,10 +67,12 @@
 	var EnumRegion = { "begin" : 0, "end" : 1, "null" : 2 };
 	var region = (str, chr) => {
 		var nullpos = 0, count = 0, num = 0, l = 0, f = 0;
-		if (str.indexOf("-") != -1)
+		if (str.indexOf("-") != -1) {
 			f = str.indexOf("-");
-		else
+		}
+		else {
 			f = str.length;
+		}
 
 		if (chr != -1) {
 			str = str.substring(chr, f);
@@ -78,10 +83,12 @@
 			++count;
 			
 			if (/[0]/.test(e)) {
-				if (num == 0)
+				if (num == 0) {
 					++nullpos;
-				else
+				}
+				else {
 					++l;
+				}
 			}
 			else if (/[1-9]/.test(e)) {
 				++num;
@@ -108,27 +115,46 @@
 			if ((ext || /[$]/.test(element)) && !used) {
 				var str = element.split(".")[0];
 
-				if (/[$]/.test(element))
+				if (/[$]/.test(element)) {
 					str = str.replaceRange(str.indexOf("$"), str.indexOf("$") + 1, "");
+				}
 
-				var position = region(str, element.split(".")[0].indexOf("$"));
-				if ((str.split("9").length - 1) != 0)
-					if (position[EnumRegion.null] != 0)
+				var hpos = element.split(".")[0].indexOf("$");
+				for (let pos = hpos; pos >= 0; pos--) {
+					if (/[0-9]/.test(str[pos])) {
+						hpos = pos
+					}
+					else {
+						break;
+					}
+				}
+
+				var position = region(str, hpos), substr = str.substring(position[EnumRegion.begin], position[EnumRegion.end]), num = parseInt(substr);
+				if (RegExp("9".repeat(substr.length)).test(substr)) {
+					if (position[EnumRegion.null] != 0) {
 						--position[EnumRegion.begin];
+					}
+					if (isNaN(num)) {
+						num = 0;
+					}
+				}
 
-				var num = parseInt(str.substring(position[EnumRegion.begin], position[EnumRegion.end]));
-				if (urlarray.slice(-1)[0].slice(-1) == element.slice(-1) && element.indexOf('.') !== -1)
+				if (urlarray.slice(-1)[0].slice(-1) == element.slice(-1) && element.indexOf('.') !== -1) {
 					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], ++num) + "." + element.split(".")[1];
-				else
+				}
+				else {
 					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], ++num) + "/";
+				}
 				
 				used = true;
 			}
 			else {
-				if (urlarray.slice(-1)[0].slice(-1) != element.slice(-1))
+				if (urlarray.slice(-1)[0].slice(-1) != element.slice(-1)) {
 					url += element + "/";
-				else
+				}
+				else {
 					url += element;
+				}
 			}
 		}
 		param[p.chr] = param[p.url].indexOf("$");
@@ -140,10 +166,12 @@
 		if (e.key === 'Enter') {
 			document.getElementById("main").innerHTML = "";
 			let imageInput = document.getElementById("input");
-			if (/[$]/.test(imageInput.value))
+			if (/[$]/.test(imageInput.value)) {
 				stuff([imageInput.value, -1, 0]);
-			else
-				LoadUrlImage([imageInput.value, -1, 0]);	
+			}
+			else {
+				LoadUrlImage([imageInput.value, -1, 0]);
+			}
 		}
 	});
 	</script>
