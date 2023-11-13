@@ -49,7 +49,7 @@
 	function fnc(param) {
 		if (param[p.width] != 0 && param[p.height] != 0) {
 			console.log("URL: " + param[p.url] + " | Image: " + param[p.pos] + " | Width: " + param[p.width] + " | Height: " + param[p.height]);
-			stuff(param);
+			GetNextImage(param);
 		}
 		else {
 			console.log("Finished!");
@@ -57,7 +57,7 @@
 		}
 	}
 
-	function LoadUrlImage(param) {
+	function LoadImageFromUrl(param) {
 		let LoadImage = async function() {
 			return CreateAndLoadImage(param);
 		};
@@ -106,15 +106,13 @@
 	String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length); }
 	String.prototype.replaceRange = function(start, end, substitute) { return this.substring(0, start) + substitute + this.substring(end); }
 
-	async function stuff(param) {
+	async function GetNextImage(param, add = 1) {
 		var url = "", used = false;
 		urlarray = param[p.url].split("/");
-		
 		for (const element of urlarray) {
 			var ext = ((v) => { for (const e of ["jpg", "png"]) { if (v.includes(e)) return true; } return false; })(element);
 			if ((ext || /[$]/.test(element)) && !used) {
 				var str = element.split(".")[0];
-
 				if (/[$]/.test(element)) {
 					str = str.replaceRange(str.indexOf("$"), str.indexOf("$") + 1, "");
 				}
@@ -140,16 +138,16 @@
 				}
 
 				if (urlarray.slice(-1)[0].slice(-1) == element.slice(-1) && element.indexOf('.') !== -1) {
-					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], ++num) + "." + element.split(".")[1];
+					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], num + add) + "." + element.split(".")[1];
 				}
 				else {
-					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], ++num) + "/";
+					url += str.replaceRange(position[EnumRegion.begin], position[EnumRegion.end], num + add) + "/";
 				}
 				
 				used = true;
 			}
 			else {
-				if (urlarray.slice(-1)[0].slice(-1) != element.slice(-1)) {
+				if (!ext) {
 					url += element + "/";
 				}
 				else {
@@ -159,7 +157,7 @@
 		}
 		param[p.chr] = param[p.url].indexOf("$");
 		param[p.url] = url;
-		LoadUrlImage(param);
+		LoadImageFromUrl(param);
 	}
 
 	document.getElementById("input").addEventListener("keypress", e => {
@@ -167,10 +165,10 @@
 			document.getElementById("main").innerHTML = "";
 			let imageInput = document.getElementById("input");
 			if (/[$]/.test(imageInput.value)) {
-				stuff([imageInput.value, -1, 0]);
+				GetNextImage([imageInput.value, -1, 0], 0);
 			}
 			else {
-				LoadUrlImage([imageInput.value, -1, 0]);
+				LoadImageFromUrl([imageInput.value, -1, 0]);
 			}
 		}
 	});
